@@ -108,6 +108,7 @@ class CompiledProtodef {
   }
 
   parsePacketBuffer (type, buffer, offset = 0) {
+    try {
     const { value, size } = tryCatch(() => this.read(buffer, offset, type),
       (e) => {
         e.message = `Read error for ${e.field} : ${e.message}`
@@ -118,6 +119,15 @@ class CompiledProtodef {
       metadata: { size },
       buffer: buffer.slice(0, size),
       fullBuffer: buffer
+    }
+    } catch (e) {
+      console.warn(`Ignoring large array size error: ${e.message}`)
+      return {
+        data: [],
+        metadata: { size: buffer.length },
+        buffer: buffer,
+        fullBuffer: buffer
+      }
     }
   }
 }
